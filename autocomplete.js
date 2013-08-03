@@ -44,24 +44,81 @@ var Autocomplete = (function(){
 				lowercaseTerms = this.lowercaseTerms,
 				length = lowercaseTerms.length,
 				patternFound = false,
-				found = [];
+				matches = [];
 
 			str = this.trim(str).toLowerCase();
 
-			for (; i<length; i++){
-				if (lowercaseTerms[i].indexOf(str) === 0){
-					patternFound = true;
+			if (str.length){
+				for (; i<length; i++){
+					if (lowercaseTerms[i].indexOf(str) === 0){
+						patternFound = true;
 
-					// Push original term
-					found.push(this.terms[i]);
-				}
-				// If pattern has been found and is no longer found
-				// then exit the loop
-				else if (patternFound){
-					break;
+						// Push original term
+						matches.push(this.terms[i]);
+					}
+					// If pattern has been found and is no longer found
+					// then exit the loop
+					else if (patternFound){
+						break;
+					}
 				}
 			}
-			return found;
+			return matches;
+		},
+
+		addListener: function(elem, eventName, listener, useCapture){
+			if ('addEventListener' in elem){
+				elem.addEventListener(eventName, listener, useCapture);
+			}
+			else if ('attachEvent' in elem){
+				elem.attachEvent(eventName, listener);
+			}
+			return this;
+		},
+
+		bindInput: function(inputElem, callback){
+			var auto = this;
+
+			function keyListener(event){
+				var input = event.target,
+					str = input.value,
+					matches = auto.filter(str);
+
+				callback(matches);
+			}
+
+			return this.addListener(input, 'keyup', keyListener, true);
+		},
+
+		bindResults: function(inputElem, resultsElem, limit){
+			var openTag  = '<li><a>',
+				closeTag = '</a></li>\n';
+
+			limit || (limit = 10);
+
+			function render(matches){
+				var length = matches.length,
+					i,
+					html = '';
+
+				for (i=0; i<length && i<limit; i++){
+					html += openTag + matches[i] + closeTag;
+				}
+				resultsElem.innerHTML = html;
+			}
+
+			function chooseTerm(event){
+				var target = event.target;
+
+				if (target && (target.nodeName === 'LI' || target.nodeName === 'A')){
+
+					inputElem.value = target.textContent;
+					resultsElem.innerHTML = '';
+				}
+			}
+			this.addListener(resultsElem, 'mousedown', chooseTerm, true);
+
+			return this.bindInput(inputElem, render);
 		}
 	};
 	
