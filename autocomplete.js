@@ -1,4 +1,4 @@
-var Autocomplete = (function(){
+window.Autocomplete = (function(){
 	'use strict';
 
 	var leftTrim = /^\s\s*/,
@@ -11,7 +11,7 @@ var Autocomplete = (function(){
 	Autocomplete.prototype = {
 		// http://blog.stevenlevithan.com/archives/faster-trim-javascript
 		trim: function(str){
-			return str.replace(leftTrim, '').replace(rightTrim, '')
+			return str.replace(leftTrim, '').replace(rightTrim, '');
 		},
 
 		update: function(terms){
@@ -87,7 +87,7 @@ var Autocomplete = (function(){
 				callback(matches);
 			}
 
-			return this.addListener(input, 'keyup', keyListener, true);
+			return this.addListener(inputElem, 'keyup', keyListener, true);
 		},
 
 		bindResults: function(inputElem, resultsElem, limit){
